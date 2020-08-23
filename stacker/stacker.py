@@ -13,15 +13,13 @@ def main():
         "arg1", type=str, help="Subcommand argument (optional)", nargs="?")
     parser.add_argument("-f", "--file", type=str,
                         help="file name or path of the main stack.json5 file.")
-    parser.add_argument("-d", "--detach", action='store_true',
-                        help="Runs in detached mode - similar to docker-compose up -d. ")
     args = parser.parse_args()
 
     file_path = args.file or "stack.json5"
     stack = create_stack_from_file(file_path, None)
 
     if args.subcommand == "up":
-        start_stack(stack, detach=args.detach)
+        start_stack(stack, True)
     elif args.subcommand == "down":
         stop_stack(stack)
     elif args.subcommand == "restart" and not args.arg1:

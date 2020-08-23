@@ -32,7 +32,7 @@ def get_volumes(c):
     return volumes
 
 
-def start_stack(stack, detach=True):
+def start_stack(stack, detach):
     for c in get_containers(stack):
         c_name = get_container_name(c)
         print(f"Starting {c_name}")
@@ -43,8 +43,8 @@ def start_stack(stack, detach=True):
         except:
             # Do nothing, there is no existing container to remove.
             pass
-        print(f"Pulling image {c.image}...")
         if not client.images.get(c.image):
+            print(f"Pulling image {c.image}...")
             client.images.pull(c.image)
         try:
             host_config = apiClient.create_host_config(
