@@ -4,6 +4,7 @@ from glob import glob
 import os
 from map import Map
 
+apiClient = docker.APIClient()
 client = docker.from_env()
 
 management = Map({})
@@ -19,6 +20,18 @@ def get_container_name(c):
     return f"{name}{c.name}"
 
 
+def get_volumes(c):
+    volumes = c.volumes
+    keys = list(volumes.keys())
+    for i in range(len(volumes)):
+        v = keys[i]
+        if v.startswith("./"):
+            newKey = os.path.abspath(c.stack.folder + v.replace(".", ""))
+            volumes[newKey] = volumes[v]
+            del volumes[v]
+    return volumes
+
+
 def start_stack(stack, detach=True):
     for c in get_containers(stack):
         c_name = get_container_name(c)
@@ -28,14 +41,22 @@ def start_stack(stack, detach=True):
             existing.stop()
             existing.remove()
         except:
-            # Do nothing
+            # Do nothing, there is no existing container to remove.
             pass
-        management[c_name] = client.containers.run(
-            c.image, detach=detach)
+        print(f"Pulling image {c.image}...")
+        if not client.images.get(c.image):
+            client.images.pull(c.image)
         try:
-            management[c_name].rename(c_name)
-        except:
-            print("Couldn't rename container.")
+            host_config = apiClient.create_host_config(
+                binds=get_volumes(c),
+                port_bindings=c.ports or {}
+            )
+            management[c_name] = apiClient.create_container(
+                image=c.image, name=c_name, volumes=list(c.volumes.keys()), host_config=host_config, ports=list(c.ports.keys() or []), detach=detach, environment=c.environment or {})
+        except Exception as e:
+            management[c_name] = apiClient.create_container(
+                image=c.image, name=c_name, detach=detach, environment=c.environment or {})
+        client.containers.get(c_name).start()
 
 
 def get_logs(stack):
@@ -64,9 +85,7 @@ def get_container_logs(c_name):
 
 
 def list_containers():
-    containers = []
-    for c in get_containers():
-        containers.append(get_container_name(c))
+    return client.containers.list()
 
 
 def stop_container(name):
@@ -129,7 +148,7 @@ def get_containers(stack):
 
 def create_container(stack, name=None, obj={}):
     c = Map(
-        {"stack": stack.name, "name": name or "default", **obj})
+        {"stack": stack, "name": name or "default", **obj})
 
     return c
 
@@ -147,9 +166,9 @@ def get_file_name(f):
     return os.path.splitext(os.path.basename(f))[0].replace(".stack", "").replace(".json5", "")
 
 
-def create_stack_from_file(file_path, parent=None):
+def create_stack_from_file(file_path, parent):
     try:
-        stack = create_stack(folder=(parent.folder if hasattr(parent, "folder") else file_path.replace(
+        stack = create_stack(folder=(file_path.replace(
             os.path.basename(file_path), "")), parent=parent, name=get_file_name(file_path))
         with open(file_path) as f:
             data = json5.load(f)
@@ -171,8 +190,12 @@ def create_stack_from_file(file_path, parent=None):
 
 def remove_parents(stack):
     del stack.parent
+    for con in stack.containers:
+        con.stack = con.stack.name
     for c in stack.children:
         try:
+            for con in c.containers:
+                con.stack = con.stack.name
             del c.parent
             remove_parents(c)
         except KeyError:

@@ -15,7 +15,7 @@ parser.add_argument("-d", "--detach", action='store_true',
 args = parser.parse_args()
 
 file_path = args.file or "stack.json5"
-stack = create_stack_from_file(file_path)
+stack = create_stack_from_file(file_path, None)
 
 if args.subcommand == "up":
     start_stack(stack, detach=args.detach)
