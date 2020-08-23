@@ -6,17 +6,21 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
 
-    name='stacker',
+    name='docker-stacker',
 
-    version='0.1',
+    version='1.0.0',
 
-    scripts=['src/cli'],
+    entry_points={
+        'console_scripts': [
+            'stacker=stacker:main',
+        ],
+    },
 
     author="Theo Paris",
 
     author_email="theo@throw-out-error.dev",
 
-    description="A Docker compose alternative that uses",
+    description="A Docker compose alternative that uses json5.",
 
     long_description=long_description,
 
@@ -27,13 +31,6 @@ setuptools.setup(
     packages=setuptools.find_packages(),
 
     classifiers=[
-
-        "Programming Language :: Python :: 3",
-
-         "License :: OSI Approved :: MIT License",
-
-         "Operating System :: OS Independent",
-
     ],
 
 )

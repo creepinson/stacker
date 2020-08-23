@@ -1,11 +1,15 @@
-# Homelab
+# Stacker
 
-a homelab generation script that uses docker-compose and dialog.
+A docker compose alternative that uses json5 and supports including other stack files.
 
 ## Dependencies
 
-First, you need to install the dialog command. You also will need to have bash installed.
+This requires docker to be installed, you can get it with this command:
 
-### In Ubuntu
-`sudo apt install dialog`
+```bash
+curl -L https://get.docker.com | sh
+```
 
+## Usage
+
+Simply install this package and then you 

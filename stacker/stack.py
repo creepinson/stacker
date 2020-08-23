@@ -2,7 +2,7 @@ import json5
 import docker
 from glob import glob
 import os
-from map import Map
+from .map import Map
 
 apiClient = docker.APIClient()
 client = docker.from_env()
