@@ -26,7 +26,7 @@ def get_volumes(c):
     keys = list(volumes.keys())
     for i in range(len(volumes)):
         v = keys[i]
-        if v.startswith("./"):
+        if v.startswith("./") or v.startswith("../"):
             newKey = os.path.abspath(c.stack.folder + v.replace(".", ""))
             volumes[newKey] = volumes[v]
             del volumes[v]
