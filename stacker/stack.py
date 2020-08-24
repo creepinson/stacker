@@ -55,9 +55,9 @@ def start_stack(stack):
             print(f"Pulling image {c.image}...")
             client.images.pull(c.image)
         try:
-            apiClient.create_network("default")
+            apiClient.create_network("stacker")
         except Exception as e:
-            print("Unable to create container network 'default': ")
+            print("Unable to create container network 'stacker': ")
             print(e)
             pass
         environment = {}
@@ -76,7 +76,7 @@ def start_stack(stack):
                 binds=get_volumes(c),
                 port_bindings=c.ports or {},
                 networking_config=apiClient.create_networking_config({
-                    "default": apiClient.create_endpoint_config(
+                    "stacker": apiClient.create_endpoint_config(
                         links=[tuple(c.links or {})]
                     )
                 })
