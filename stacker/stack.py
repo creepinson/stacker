@@ -54,6 +54,11 @@ def start_stack(stack):
             # Image does not exist yet
             print(f"Pulling image {c.image}...")
             client.images.pull(c.image)
+        try:
+            apiClient.create_network("default")
+        except:
+            print("Unable to create container network 'default.")
+            pass
         environment = {}
         try:
             if c.environment:
