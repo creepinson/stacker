@@ -68,14 +68,19 @@ def start_stack(stack):
         try:
             host_config = apiClient.create_host_config(
                 binds=get_volumes(c),
-                port_bindings=c.ports or {}
+                port_bindings=c.ports or {},
+                networking_config=apiClient.create_networking_config({
+                    "default": apiClient.create_endpoint_config(
+                        links=[tuple(c.links or {})]
+                    )
+                })
             )
             apiClient.create_container(
                 image=c.image, name=c_name, volumes=list(c.volumes.keys()), host_config=host_config, ports=list(c.ports.keys() or []), detach=True, environment=environment or {})
         except Exception as e:
             apiClient.create_container(
                 image=c.image, name=c_name, detach=True, environment=environment or {})
-        client.containers.get(c_name).start(links=c.links or {})
+        client.containers.get(c_name).start()
 
 
 def get_logs(stack):
