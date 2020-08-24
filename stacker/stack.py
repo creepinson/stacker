@@ -39,6 +39,17 @@ def get_volumes(c):
 
 @progress_wrapped(estimated_time=100)
 def start_stack(stack):
+    try:
+        apiClient.remove_network("stacker")
+    except:
+        # Network does not exist, create it
+        pass
+    try:
+        apiClient.create_network("stacker")
+    except Exception as e:
+        print("Unable to create container network 'stacker': ")
+        print(e)
+        pass
     for c in get_containers(stack):
         c_name = get_container_name(c)
         print(f"Starting {c_name}")
@@ -54,17 +65,6 @@ def start_stack(stack):
             # Image does not exist yet
             print(f"Pulling image {c.image}...")
             client.images.pull(c.image)
-        try:
-            apiClient.remove_network("stacker")
-        except:
-            # Network does not exist, create it
-            pass
-        try:
-            apiClient.create_network("stacker")
-        except Exception as e:
-            print("Unable to create container network 'stacker': ")
-            print(e)
-            pass
         environment = {}
         try:
             if c.environment:
