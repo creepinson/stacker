@@ -54,16 +54,27 @@ def start_stack(stack):
             # Image does not exist yet
             print(f"Pulling image {c.image}...")
             client.images.pull(c.image)
+        environment = {}
+        try:
+            if c.environment:
+                if isinstance(c.environment, str):
+                    with open(c.stack.folder + c.environment) as f:
+                        environment = json5.load(f)
+                else:
+                    environment = c.environment
+        except Exception as e:
+            print(f"Failed to parse json5 env file for {c_name}:")
+            print(e)
         try:
             host_config = apiClient.create_host_config(
                 binds=get_volumes(c),
                 port_bindings=c.ports or {}
             )
             apiClient.create_container(
-                image=c.image, name=c_name, volumes=list(c.volumes.keys()), host_config=host_config, ports=list(c.ports.keys() or []), detach=True, environment=c.environment or {})
+                image=c.image, name=c_name, volumes=list(c.volumes.keys()), host_config=host_config, ports=list(c.ports.keys() or []), detach=True, environment=environment or {})
         except Exception as e:
             apiClient.create_container(
-                image=c.image, name=c_name, detach=True, environment=c.environment or {})
+                image=c.image, name=c_name, detach=True, environment=environment or {})
         client.containers.get(c_name).start()
 
 
@@ -161,7 +172,6 @@ def get_containers(stack):
 def create_container(stack, name=None, obj={}):
     c = Map(
         {"stack": stack, "name": name or "default", **obj})
-
     return c
 
 
