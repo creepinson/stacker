@@ -56,6 +56,10 @@ def start_stack(stack):
             client.images.pull(c.image)
         try:
             apiClient.remove_network("stacker")
+        except:
+            # Network does not exist, create it
+            pass
+        try:
             apiClient.create_network("stacker")
         except Exception as e:
             print("Unable to create container network 'stacker': ")
