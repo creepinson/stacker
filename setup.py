@@ -16,6 +16,14 @@ setuptools.setup(
         ],
     },
 
+    install_requires=[
+        'json-five',
+        'docker',
+        'argparse',
+        'attrdict',
+        'tqdm',
+    ],
+
     author="Theo Paris",
 
     author_email="theo@throw-out-error.dev",

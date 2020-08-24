@@ -2,3 +2,4 @@ json-five
 docker
 argparse
 attrdict
+tqdm

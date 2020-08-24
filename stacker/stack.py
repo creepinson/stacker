@@ -3,6 +3,7 @@ import docker
 from glob import glob
 import os
 from .map import Map
+from .progress import progress_wrapped
 
 apiClient = docker.APIClient()
 client = docker.from_env()
@@ -32,6 +33,7 @@ def get_volumes(c):
     return volumes
 
 
+@progress_wrapped(estimated_time=100)
 def start_stack(stack, detach):
     for c in get_containers(stack):
         c_name = get_container_name(c)
@@ -43,7 +45,10 @@ def start_stack(stack, detach):
         except:
             # Do nothing, there is no existing container to remove.
             pass
-        if not client.images.get(c.image):
+        try:
+            client.images.get(c.image)
+        except:
+            # Image does not exist yet
             print(f"Pulling image {c.image}...")
             client.images.pull(c.image)
         try:
