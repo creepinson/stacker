@@ -75,7 +75,7 @@ def start_stack(stack):
         except Exception as e:
             apiClient.create_container(
                 image=c.image, name=c_name, detach=True, environment=environment or {})
-        client.containers.get(c_name).start()
+        client.containers.get(c_name).start(links=c.links or {})
 
 
 def get_logs(stack):
