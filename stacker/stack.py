@@ -34,17 +34,15 @@ def get_volumes(c):
 
 
 @progress_wrapped(estimated_time=100)
-def start_stack(stack, detach):
+def start_stack(stack):
     for c in get_containers(stack):
         c_name = get_container_name(c)
         print(f"Starting {c_name}")
         try:
             existing = client.containers.get(c_name)
             existing.stop()
-            existing.start()
-            return
-        except:
-            # Do nothing, there is no existing container to remove.
+            existing.remove()
+        except Exception as e:
             pass
         try:
             client.images.get(c.image)
@@ -57,11 +55,11 @@ def start_stack(stack, detach):
                 binds=get_volumes(c),
                 port_bindings=c.ports or {}
             )
-            management[c_name] = apiClient.create_container(
-                image=c.image, name=c_name, volumes=list(c.volumes.keys()), host_config=host_config, ports=list(c.ports.keys() or []), detach=detach, environment=c.environment or {})
+            apiClient.create_container(
+                image=c.image, name=c_name, volumes=list(c.volumes.keys()), host_config=host_config, ports=list(c.ports.keys() or []), detach=True, environment=c.environment or {})
         except Exception as e:
-            management[c_name] = apiClient.create_container(
-                image=c.image, name=c_name, detach=detach, environment=c.environment or {})
+            apiClient.create_container(
+                image=c.image, name=c_name, detach=True, environment=c.environment or {})
         client.containers.get(c_name).start()
 
 

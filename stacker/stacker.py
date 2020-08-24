@@ -19,7 +19,7 @@ def main():
     stack = create_stack_from_file(file_path, None)
 
     if args.subcommand == "up":
-        start_stack(stack, True)
+        start_stack(stack)
     elif args.subcommand == "down":
         stop_stack(stack)
     elif args.subcommand == "restart" and not args.arg1:
@@ -40,4 +40,4 @@ def main():
         for line in get_container_logs(args.arg1).split("\n"):
             print(line)
     else:
-        print("Invalid command.")
+        print("Invalid command. Type 'stacker -h' for help.")
