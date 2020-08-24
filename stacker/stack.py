@@ -41,7 +41,8 @@ def start_stack(stack, detach):
         try:
             existing = client.containers.get(c_name)
             existing.stop()
-            existing.remove()
+            existing.start()
+            return
         except:
             # Do nothing, there is no existing container to remove.
             pass
@@ -89,8 +90,12 @@ def get_container_logs(c_name):
     return logs
 
 
-def list_containers():
-    return client.containers.list()
+def list_containers(stack):
+    containers = []
+    for c in get_containers(stack):
+        c_name = get_container_name(c)
+        containers.append(c_name)
+    return containers
 
 
 def stop_container(name):
